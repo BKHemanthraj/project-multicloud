@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ibm-project-deployment
+  labels:
+    app: ibm-project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ibm-project
+  template:
+    metadata:
+      labels:
+        app: ibm-project
+    spec:
+      imagePullSecrets:
+      - name: ibm-cloud-secret  # Ensure this secret is created in the namespace
+      containers:
+      - name: ibm-project-container
+        image: icr.io/project-multicloud/ibm-project-multicloud:latest  # Updated to match pipeline image path
+        ports:
+        - containerPort: 5000  # Port updated to match your Docker container's exposed port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ibm-project-service
+spec:
+  type: NodePort
+  selector:
+    app: ibm-project
+  ports:
+  - port: 5000  # Service port updated to match containerPort
+    targetPort: 5000
+    nodePort: 30080  # Custom NodePort, ensure this is available in your cluster
